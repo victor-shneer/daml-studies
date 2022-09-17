@@ -21,8 +21,8 @@ jobs:
     parameters:
       daml_sdk_version: 
         type: string
-    docker:
-      - image: cimg/base:stable
+    machine:
+      image: ubuntu-2204:2022.04.2
     steps:
       - checkout
       - install_sdk:
