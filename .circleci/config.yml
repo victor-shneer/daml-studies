@@ -2,25 +2,37 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+commands:
+  install_sdk:
+    description: "Install Daml SDK"
+    parameters:
+      version:
+        type: string
+    steps:
+      - run:
+          name: Install Daml SDK
+          command: |
+            curl -sSL https://get.daml.com/ | sh /dev/stdin << parameters.version >>
+            # idea from https://circleci.com/docs/2.0/env-vars/
+            >> $BASH_ENV echo 'export PATH="$HOME/.daml/bin:$PATH"'
+
 jobs:
-  simple-tests:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+  simple-daml-test:
+    parameters:
+      daml_sdk_version: 
+        type: string
     docker:
       - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
+      - install_sdk:
+          version: << parameters.daml_sdk_version >>
       - run:
           name: "daml test"
           command: "daml test"
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  test-workflow:
+  simple-daml-test-workflow:
     jobs:
-      - simple-tests
+      - simple-daml-test:
+          daml_sdk_version: "2.3.2"
