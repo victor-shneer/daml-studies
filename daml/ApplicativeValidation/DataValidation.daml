@@ -1,0 +1,32 @@
+module ApplicativeValidation.DataValidation where
+
+import DA.NonEmpty
+import DA.Validation
+import DA.Text
+
+import ApplicativeValidation.DataModels
+
+acceptAny : a -> Validation Text a
+acceptAny = ok
+
+checkAgeIsBetween : Ord a => a -> a -> a -> Validation Text a
+checkAgeIsBetween a b age =
+   if a < age && age < b
+   then ok age
+   else invalid "Age is not good"
+ 
+checkOptionalIsFilled name None = invalid $ "Missing field:" <> name
+checkOptionalIsFilled _ item = ok item
+ 
+personValidation : Person -> Validation Text Person
+personValidation Person{address=Address{..}, ..} =
+   Person <$>
+       acceptAny name <*>
+       checkAgeIsBetween 18 65 age <*>
+       (Address <$>
+           acceptAny city <*>
+           checkOptionalIsFilled "street" street)
+ 
+printResults : Either (NonEmpty Text) Person -> Text
+printResults (Right Person{}) = "Validation OK."
+printResults (Left errors) = "Validation failed, errors: " <> intercalate ", " (toList errors)

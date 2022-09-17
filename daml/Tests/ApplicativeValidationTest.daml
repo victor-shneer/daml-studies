@@ -1,0 +1,28 @@
+module Tests.ApplicativeValidationTest where
+
+import Daml.Script
+
+import DA.Validation
+import DA.Assert
+
+import ApplicativeValidation.DataModels
+import ApplicativeValidation.DataValidation
+
+applicativeValidationTest : Script ()
+applicativeValidationTest = do
+   let candidate = Person with
+           name = "William"
+           age = 999
+           address = Address with
+               city = "X"
+               street = None
+       result = run $ personValidation candidate
+       candidate2 = Person with
+           name = "Robert"
+           age = 40
+           address = Address with
+               city = "X"
+               street = Some "Y"
+       result2 = run $ personValidation candidate2
+   printResults result === "Validation failed, errors: Age is not good, Missing field:street"
+   printResults result === "Validation failed, errors: Age is not good, Missing field:street"

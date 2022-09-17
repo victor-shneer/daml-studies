@@ -1,0 +1,12 @@
+module ApplicativeValidation.DataModels where
+
+data Person = Person with
+   name : Text
+   age : Int
+   address : Address
+ deriving (Show)
+ 
+data Address = Address with
+   city : Text
+   street : Optional Text
+ deriving (Show)
